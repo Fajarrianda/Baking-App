@@ -1,0 +1,27 @@
+# Java class files
+*.class
+
+.gradle
+/local.properties
+
+# Intellij
+*.iml
+**/.idea/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/dictionaries
+.idea/libraries
+
+.DS_Store
+
+# Built application files
+*.apk
+*.ap_
+
+
+# Gradle files
+.gradle/
+build/
+
+/captures
