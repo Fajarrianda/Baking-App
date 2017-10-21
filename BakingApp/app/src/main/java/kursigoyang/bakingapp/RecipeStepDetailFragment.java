@@ -30,6 +30,7 @@ import kursigoyang.bakingapp.model.Step;
  */
 public class RecipeStepDetailFragment extends Fragment {
 
+
   final static String KEY_POSITION = "position";
   @Bind(R.id.videoContent) SimpleExoPlayerView videoContent;
   @Bind(R.id.txtInstruction) TextView txtInstruction;
@@ -63,6 +64,7 @@ public class RecipeStepDetailFragment extends Fragment {
   @Override public void onAttach(Context context) {
     super.onAttach(context);
     this.context = context;
+
   }
 
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {

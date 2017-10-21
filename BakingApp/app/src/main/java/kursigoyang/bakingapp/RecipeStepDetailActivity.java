@@ -13,6 +13,7 @@ import kursigoyang.bakingapp.model.Step;
 
 public class RecipeStepDetailActivity extends AppCompatActivity {
 
+
   RecipeStepDetailPagerAdapter recipeStepDetailPagerAdapter;
   @Bind(R.id.pager) ViewPager pager;
 

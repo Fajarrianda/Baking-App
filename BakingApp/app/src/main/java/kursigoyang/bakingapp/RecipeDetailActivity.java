@@ -3,11 +3,8 @@ package kursigoyang.bakingapp;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Toast;
 import butterknife.ButterKnife;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -18,7 +15,7 @@ import kursigoyang.bakingapp.model.Ingredient;
 import kursigoyang.bakingapp.model.Step;
 
 public class RecipeDetailActivity extends AppCompatActivity
-    implements AdapterView.OnItemSelectedListener {
+    implements RecipeDetailFragment.OnStepSelectedListener {
 
   String stepsJson;
   String ingredientsJson;
@@ -40,7 +37,6 @@ public class RecipeDetailActivity extends AppCompatActivity
     ingredientsJson = getIntent().getStringExtra(Ingredient.class.getSimpleName());
 
     if (findViewById(R.id.frameContainer) != null) {
-
       if (savedInstanceState != null) {
         return;
       }
@@ -49,39 +45,34 @@ public class RecipeDetailActivity extends AppCompatActivity
           .replace(R.id.frameContainer,
               RecipeDetailFragment.newInstance(stepsJson, ingredientsJson))
           .commit();
+    } else {
+      determinePaneLayout();
     }
-
-    determinePaneLayout();
   }
 
   private void determinePaneLayout() {
     if (findViewById(R.id.recipe_step_detail_fragment) != null) {
       isTwoPane = true;
+      RecipeDetailFragment fragment =
+          (RecipeDetailFragment) getSupportFragmentManager().findFragmentById(
+              R.id.recipe_detail_fragment);
+      fragment.setOnFragmentItemClick(stepsJson,ingredientsJson);
     }
   }
 
-  @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-    if (!TextUtils.isEmpty(stepsJson)) {
-      Type stepListType = new TypeToken<ArrayList<Step>>() {
-      }.getType();
-      List<Step> stepList = new Gson().fromJson(stepsJson, stepListType);
-
-      if (isTwoPane) {
-        RecipeStepDetailFragment fragment = RecipeStepDetailFragment.newInstance(stepList.get(0));
-        getSupportFragmentManager().beginTransaction()
-            .replace(R.id.recipe_step_detail_fragment, fragment)
-            .commit();
-      } else {
-        RecipeStepDetailActivity.start(this, stepList, 0);
-      }
+  @Override public void onStepSelected(int position) {
+    Type stepListType = new TypeToken<ArrayList<Step>>() {
+    }.getType();
+    List<Step> stepList = new Gson().fromJson(stepsJson, stepListType);
+    if (isTwoPane) {
+      RecipeStepDetailFragment fragmentItem =
+          RecipeStepDetailFragment.newInstance(stepList.get(position));
+      FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+      ft.replace(R.id.recipe_step_detail_fragment, fragmentItem);
+      ft.commit();
     } else {
-      Toast.makeText(this,"json ksong",Toast.LENGTH_LONG);
+      RecipeStepDetailActivity.start(this, stepList, position);
     }
-  }
-
-  @Override public void onNothingSelected(AdapterView<?> adapterView) {
-
   }
   //
   //@Override public void onStepSelected(int index) {

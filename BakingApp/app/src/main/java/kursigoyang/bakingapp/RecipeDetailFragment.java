@@ -4,6 +4,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,18 +29,15 @@ import kursigoyang.bakingapp.model.Step;
  * A simple {@link Fragment} subclass.
  */
 public class RecipeDetailFragment extends Fragment {
-
+  OnStepSelectedListener onStepSelectedListener;
+  public interface OnStepSelectedListener {
+    public void onStepSelected(int position);
+  }
   @Bind(R.id.ingredientsContainer) LinearLayout ingredientsContainer;
   @Bind(R.id.stepsContainer) LinearLayout stepsContainer;
   Context context;
   List<Step> steps;
   List<Ingredient> ingredients;
-  OnStepSelectedListener onStepSelectedListener;
-
-
-  public interface OnStepSelectedListener{
-    public void onStepSelected(int position);
-  }
 
   public RecipeDetailFragment() {
     // Required empty public constructor
@@ -55,6 +55,13 @@ public class RecipeDetailFragment extends Fragment {
   @Override public void onAttach(Context context) {
     super.onAttach(context);
     this.context = context;
+    if (context instanceof RecipeDetailFragment.OnStepSelectedListener) {
+      onStepSelectedListener = (RecipeDetailFragment.OnStepSelectedListener) context;
+    } else {
+      throw new ClassCastException(context.toString() + " must implement OnStepSelectedListener");
+    }
+    ActionBar actionBar=((AppCompatActivity)context).getSupportActionBar();
+    actionBar.setDisplayHomeAsUpEnabled(true);
   }
 
   @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,9 +72,9 @@ public class RecipeDetailFragment extends Fragment {
     return view;
   }
 
-  @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    init();
+  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    init("","");
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -77,26 +84,36 @@ public class RecipeDetailFragment extends Fragment {
 
   @Override public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
-    if (id == R.id.add_widget) {
-      if (!ingredients.isEmpty()) {
-        Preferences.setIngredients(ingredients);
-      }
-      return true;
+    switch (id) {
+      case android.R.id.home:
+        getActivity().finish();
+        return true;
+      case R.id.add_widget:
+        if (!ingredients.isEmpty()) {
+          Preferences.setIngredients(ingredients);
+        }
+        return true;
     }
-
     return super.onOptionsItemSelected(item);
   }
 
-  private void init() {
+  private void init(String stepJson, String ingredientJson) {
+
+    if (getArguments() == null && TextUtils.isEmpty(stepJson)){
+      return;
+    }
 
     Type stepListType = new TypeToken<ArrayList<Step>>() {
     }.getType();
-    steps = new Gson().fromJson(getArguments().getString(Step.class.getSimpleName()), stepListType);
-
     Type ingredientListType = new TypeToken<ArrayList<Ingredient>>() {
     }.getType();
-    ingredients = new Gson().fromJson(getArguments().getString(Ingredient.class.getSimpleName()),
-        ingredientListType);
+
+    steps = new Gson().fromJson(getArguments() != null
+        ? getArguments().getString(Step.class.getSimpleName())
+        : stepJson, stepListType);
+    ingredients = new Gson().fromJson(getArguments() != null
+        ? getArguments().getString(Ingredient.class.getSimpleName())
+        : ingredientJson, ingredientListType);
 
     for (int i = 0; i < steps.size(); i++) {
       TextView txtSteps = (TextView) LayoutInflater.from(context)
@@ -106,7 +123,7 @@ public class RecipeDetailFragment extends Fragment {
 
       final int position = i;
       txtSteps.setOnClickListener(view -> {
-        RecipeStepDetailActivity.start(context, steps, position);
+        onStepSelectedListener.onStepSelected(position);
       });
       stepsContainer.addView(txtSteps);
     }
@@ -118,6 +135,12 @@ public class RecipeDetailFragment extends Fragment {
       txtIngredients.setText(ingredient.getIngredient());
       ingredientsContainer.addView(txtIngredients);
     }
+  }
+
+
+  public void setOnFragmentItemClick(String stepJson, String ingredientJson){
+    init(stepJson,ingredientJson);
+   onStepSelectedListener.onStepSelected(0);
   }
 
   //@Override public void onListItemClick(ListView l, View v, int position, long id) {
