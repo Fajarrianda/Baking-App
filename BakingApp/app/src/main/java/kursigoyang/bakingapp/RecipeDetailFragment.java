@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,9 +31,8 @@ import kursigoyang.bakingapp.model.Step;
  */
 public class RecipeDetailFragment extends Fragment {
   OnStepSelectedListener onStepSelectedListener;
-  public interface OnStepSelectedListener {
-    public void onStepSelected(int position);
-  }
+
+  @Bind(R.id.scrollView) ScrollView scrollView;
   @Bind(R.id.ingredientsContainer) LinearLayout ingredientsContainer;
   @Bind(R.id.stepsContainer) LinearLayout stepsContainer;
   Context context;
@@ -60,7 +60,7 @@ public class RecipeDetailFragment extends Fragment {
     } else {
       throw new ClassCastException(context.toString() + " must implement OnStepSelectedListener");
     }
-    ActionBar actionBar=((AppCompatActivity)context).getSupportActionBar();
+    ActionBar actionBar = ((AppCompatActivity) context).getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
   }
 
@@ -74,7 +74,7 @@ public class RecipeDetailFragment extends Fragment {
 
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    init("","");
+    init("", "");
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -99,7 +99,7 @@ public class RecipeDetailFragment extends Fragment {
 
   private void init(String stepJson, String ingredientJson) {
 
-    if (getArguments() == null && TextUtils.isEmpty(stepJson)){
+    if (getArguments() == null && TextUtils.isEmpty(stepJson)) {
       return;
     }
 
@@ -137,10 +137,23 @@ public class RecipeDetailFragment extends Fragment {
     }
   }
 
+  public void setOnFragmentItemClick(String stepJson, String ingredientJson) {
+    init(stepJson, ingredientJson);
+    onStepSelectedListener.onStepSelected(0);
+  }
 
-  public void setOnFragmentItemClick(String stepJson, String ingredientJson){
-    init(stepJson,ingredientJson);
-   onStepSelectedListener.onStepSelected(0);
+  @Override public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putIntArray("SCROLL_POSITION",
+        new int[] { scrollView.getScrollX(), scrollView.getScrollY() });
+  }
+
+  @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    if (savedInstanceState != null) {
+      final int[] position = savedInstanceState.getIntArray("SCROLL_POSITION");
+      if (position != null) scrollView.post(() -> scrollView.scrollTo(position[0], position[1]));
+    }
   }
 
   //@Override public void onListItemClick(ListView l, View v, int position, long id) {
@@ -148,4 +161,8 @@ public class RecipeDetailFragment extends Fragment {
   //  l.setItemChecked(position,true);
   //  super.onListItemClick(l, v, position, id);
   //}
+
+  public interface OnStepSelectedListener {
+    public void onStepSelected(int position);
+  }
 }

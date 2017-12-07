@@ -36,6 +36,7 @@ public class RecipeDetailActivity extends AppCompatActivity
     stepsJson = getIntent().getStringExtra(Step.class.getSimpleName());
     ingredientsJson = getIntent().getStringExtra(Ingredient.class.getSimpleName());
 
+
     if (findViewById(R.id.frameContainer) != null) {
       if (savedInstanceState != null) {
         return;

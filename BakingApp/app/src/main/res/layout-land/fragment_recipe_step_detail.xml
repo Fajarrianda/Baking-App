@@ -1,21 +1,35 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
-    tools:context=".RecipeStepDetailFragment"
+    android:fillViewport="true"
     >
-  <TextView
-      android:id="@+id/txtInstruction"
+  <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:visibility="gone"
-      tools:text="@string/hello_blank_fragment"
-      />
-  <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-      android:id="@+id/videoContent"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      />
-
-</FrameLayout>
+      android:layout_height="wrap_content"
+      tools:context=".RecipeStepDetailFragment"
+      >
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:id="@+id/videoContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:resize_mode="fill"
+        />
+    <ImageView
+        android:id="@+id/imgThumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        />
+    <TextView
+        android:id="@+id/txtInstruction"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/videoContent"
+        tools:text="@string/hello_blank_fragment"
+        android:padding="8dp"
+        />
+  </RelativeLayout>
+</ScrollView>

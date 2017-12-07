@@ -1,6 +1,7 @@
 package kursigoyang.bakingapp;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
@@ -20,6 +21,10 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
   BakingAdapter adapter;
   @Bind(R.id.rvContent) RecyclerView rvContent;
 
+  /* For Maintain Scroll Position */
+  RecyclerView.LayoutManager layoutManager;
+  Parcelable listState;
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
@@ -28,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
   }
 
   private void init() {
-
+    layoutManager = rvContent.getLayoutManager();
     rvContent.setHasFixedSize(true);
     isTabletDevice();
 
@@ -77,4 +82,26 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
       return false;
     }
   }
+
+  @Override protected void onSaveInstanceState(Bundle outState) {
+    listState = rvContent.getLayoutManager().onSaveInstanceState();
+    outState.putParcelable("List State",listState);
+    super.onSaveInstanceState(outState);
+  }
+
+  @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    if (savedInstanceState != null){
+      listState = savedInstanceState.getParcelable("List State");
+      rvContent.getLayoutManager().onRestoreInstanceState(listState);
+    }
+    super.onRestoreInstanceState(savedInstanceState);
+  }
+
+  //@Override
+  //protected void onResume() {
+  //  super.onResume();
+  //  if (listState != null) {
+  //    rvContent.getLayoutManager().onRestoreInstanceState(listState);
+  //  }
+  //}
 }
